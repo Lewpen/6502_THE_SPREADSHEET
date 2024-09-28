@@ -60,7 +60,9 @@ The actual distinct expressions for the updates to registers et al. are few enou
 
 ## TECHNICALS
 
-### Here are the columns of the spreadsheet:
+### Spreadsheet Columns
+
+Here are the columns of the spreadsheet:
 
 | Index | Position | Header Title                 | Description                                                                 |
 |-------|----------|------------------------------|-----------------------------------------------------------------------------|
@@ -90,35 +92,37 @@ The actual distinct expressions for the updates to registers et al. are few enou
 | 23    | X        | writeWordAddress             | Address where a word is written in memory                                   |
 | 24    | Y        | writeWordValue               | The value that is written to the memory word                                |
 
+### Example column values
+
 Here with some example values from the `ORA ($LL, X)` instruction (opcode `0x01`):
 
-| Header Title                 | Example Value (ORA ($LL, X))            |
-|------------------------------|-----------------------------------------|
-| Bytes                        | 1                                       |
-| Name                         | ORA                                     |
-| Cycles                       | 6                                       |
-| Args                         | ($LL, X)                                |
-| Description of the instruction| Bitwise OR between A and byte at address (LL + X) |
-| zeroPageWordAddress =        | LL + X                                  |
-| readByteAddress =            | zeroPageWord                            |
-| readWordAddress =            |                                         |
-| result (word) =              | A | readByte                            |
-| A =                          | result                                  |
-| X =                          |                                         |
-| Y =                          |                                         |
-| SP =                         |                                         |
-| PC =                         | PC + 2                                  |
-| carry =                      | carry                                   |
-| zero =                       | result == 0                             |
-| interrupt =                  | interrupt                               |
-| decimal =                    | decimal                                 |
-| break =                      |                                         |
-| overflow =                   | overflow                                |
-| negative =                   | result >> 7                             |
-| writeByteAddress             |                                         |
-| writeByteValue               |                                         |
-| writeWordAddress             |                                         |
-| writeWordValue               |                                         |
+| Header Title                 | Example Value (ORA ($LL, X))            | Notes |
+|------------------------------|-----------------------------------------|-------|
+| Bytes                        | 01 LL                                       | Opcode and one byte of argument (LL) |
+| Name                         | ORA                                     | Assembly langugaue instruction name |
+| Cycles                       | 6                                       | Number of cycles |
+| Args                         | ($LL, X)                                | What the arguments to this assembly language instruction look like |
+| Description of the instruction| Bitwise OR between A and byte at address (LL + X) | |
+| zeroPageWordAddress =        | LL + X                                  | This causes `zeroPageWord` to be set to `memory[zeroPageWordAddress&0xFF` | 
+| readByteAddress =            | zeroPageWord                            | This causes `readByte` to be set to `memory[readByteAddress&0xFFFF` |
+| readWordAddress =            |                                         | This would set `readWord` if present |
+| result (word) =              | A | readByte                            | A convenient variable to store the result |
+| A =                          | result                                  | Puts the result into the new value of A register|
+| X =                          |                                         | No change to X |
+| Y =                          |                                         | No change to Y register |
+| SP =                         |                                         | No change to Stack Pointer |
+| PC =                         |                                   | Two byte instruction; moving Program Counter on by 2 is the default behaviour |
+| carry =                      |                                         | |
+| zero =                       | result == 0                             | Zero flag gets updated |
+| interrupt =                  |                                 | |
+| decimal =                    |                                  | |
+| break =                      |                                         | |
+| overflow =                   |                                 | |
+| negative =                   | result >> 7                             | Negative flag gets updated |
+| writeByteAddress             |                                         | No memory writes |
+| writeByteValue               |                                         | |
+| writeWordAddress             |                                         | |
+| writeWordValue               |                                         | |
 
 ### Go Language Support
 
