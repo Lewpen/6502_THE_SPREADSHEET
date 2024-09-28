@@ -1,5 +1,7 @@
 # 6502 THE SPREADSHEET (The Repository)
 
+## Introduction
+
 All 6502 instructions with their actions completely unrolled so you don't have to pick through detailed documentation to understand what they do or how to emulate them accurately.
 
 This is used to code generate emulators in a variety of languages directly in the spreadsheet as columns which can be copy/pasted as source code.
@@ -56,9 +58,9 @@ The actual distinct expressions for the updates to registers et al. are few enou
 3) Make codegen examples for JavaScript and Go for disassemblers and emulators
 4) Make test cases and put it through its paces
 
-# TECHNICALS
+## TECHNICALS
 
-## Here are the columns of the spreadsheet:
+### Here are the columns of the spreadsheet:
 
 | Index | Position | Header Title                 | Description                                                                 |
 |-------|----------|------------------------------|-----------------------------------------------------------------------------|
@@ -88,9 +90,9 @@ The actual distinct expressions for the updates to registers et al. are few enou
 | 23    | X        | writeWordAddress             | Address where a word is written in memory                                   |
 | 24    | Y        | writeWordValue               | The value that is written to the memory word                                |
 
-## Go Language Support
+### Go Language Support
 
-### func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool
+#### func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool
 
 Column BE in the spreadsheet contains Go code generated from the instruction information.
 
@@ -98,21 +100,28 @@ This whole column can simply be copy-pasted into your source code to have a func
 
 The generated code column starts with some fixed text:
 
-```func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool {
-  instruction := memory[PC & 0xFFFF]```
+```
+func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool {
+  instruction := memory[PC & 0xFFFF]
+```
 
 Then has an if statement for each row which encodes the execution of the instruction in that row. Here is ORA (opcode 0x01) as an example:
 
-```  if instruction == 0x01 { LL := memory[PC + 1]; zeroPageWord := memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); readByte := memory[(zeroPageWord)&0xFFFF]; result := A | readByte; newA := result; *A = newA; carry := SR&1; zero := result == 0;interrupt := (SR>>2)&1; decimal := (SR>>3)&1; overflow := (SR>>6)&1; negative := (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true }```
+```
+if instruction == 0x01 { LL := memory[PC + 1]; zeroPageWord := memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); readByte := memory[(zeroPageWord)&0xFFFF]; result := A | readByte; newA := result; *A = newA; carry := SR&1; zero := result == 0;interrupt := (SR>>2)&1; decimal := (SR>>3)&1; overflow := (SR>>6)&1; negative := (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true }
+```
 
 And finally after all the instruction handling there is the end of the `Emulate6502` function:
 
-```  return false
-}```
+```
+  return false
+}
+```
 
 Although the expression looks complex, it breaks down into a set of easy string replacements in the spreadsheet formula:
 
-```="  if instruction == 0x" & LEFT(A9,2) & " { " &
+```
+="  if instruction == 0x" & LEFT(A9,2) & " { " &
 
 JOIN("",
 
