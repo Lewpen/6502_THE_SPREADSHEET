@@ -92,33 +92,33 @@ The actual distinct expressions for the updates to registers et al. are few enou
 
 Here with some example values from the `ORA ($LL, X)` instruction (opcode `0x01`):
 
-| Index | Position | Header Title                 | Description                                                                 | Example Value (ORA ($LL, X))            |
-|-------|----------|------------------------------|-----------------------------------------------------------------------------|-----------------------------------------|
-| 0     | A        | Bytes                        | The opcode bytes of the instruction and its arguments                       | 01 LL                                   |
-| 1     | B        | Name                         | Instruction mnemonic, e.g., BRK, ORA, etc.                                  | ORA                                     |
-| 2     | C        | Cycles                       | Number of CPU cycles the instruction takes                                  | 6                                       |
-| 3     | D        | Args                         | The arguments used by the instruction, e.g., immediate, zero-page, etc.     | ($LL, X)                                |
-| 4     | E        | Description of the instruction| A short description of what the instruction does                           | Bitwise OR between A and byte at address (LL + X) |
-| 5     | F        | zeroPageWordAddress =        | Address used to perform zero-page word memory access, results in readByte   | LL + X                                  |
-| 6     | G        | readByteAddress =            | Address used to perform a byte read from memory, results in readByte        | zeroPageWord                            |
-| 7     | H        | readWordAddress =            | Address used to perform a word read from memory, results in readWord        |                                         |
-| 8     | I        | result (word) =              | The result of the operation, affects flags and registers                    | A | readByte                              |
-| 9     | J        | A =                          | The new value of the accumulator after the operation                        | result                                  |
-| 10    | K        | X =                          | The new value of the X register after the operation                         |                                         |
-| 11    | L        | Y =                          | The new value of the Y register after the operation                         |                                         |
-| 12    | M        | SP =                         | The new value of the stack pointer after the operation                      |                                         |
-| 13    | N        | PC =                         | The new value of the program counter after the operation                    | PC + 2                                  |
-| 14    | O        | carry =                      | The new value of the carry flag                                             | carry                                   |
-| 15    | P        | zero =                       | The new value of the zero flag                                              | result == 0                             |
-| 16    | Q        | interrupt =                  | The new value of the interrupt disable flag                                 | interrupt                               |
-| 17    | R        | decimal =                    | The new value of the decimal mode flag                                      | decimal                                 |
-| 18    | S        | break =                      | The new value of the break command flag                                     |                                         |
-| 19    | T        | overflow =                   | The new value of the overflow flag                                          | overflow                                |
-| 20    | U        | negative =                   | The new value of the negative flag                                          | result >> 7                             |
-| 21    | V        | writeByteAddress             | Address where a byte is written in memory                                   |                                         |
-| 22    | W        | writeByteValue               | The value that is written to the memory byte                                |                                         |
-| 23    | X        | writeWordAddress             | Address where a word is written in memory                                   |                                         |
-| 24    | Y        | writeWordValue               | The value that is written to the memory word                                |                                         |
+| Header Title                 | Example Value (ORA ($LL, X))            |
+|------------------------------|-----------------------------------------|
+| Bytes                        | 1                                       |
+| Name                         | ORA                                     |
+| Cycles                       | 6                                       |
+| Args                         | ($LL, X)                                |
+| Description of the instruction| Bitwise OR between A and byte at address (LL + X) |
+| zeroPageWordAddress =        | LL + X                                  |
+| readByteAddress =            | zeroPageWord                            |
+| readWordAddress =            |                                         |
+| result (word) =              | A | readByte                            |
+| A =                          | result                                  |
+| X =                          |                                         |
+| Y =                          |                                         |
+| SP =                         |                                         |
+| PC =                         | PC + 2                                  |
+| carry =                      | carry                                   |
+| zero =                       | result == 0                             |
+| interrupt =                  | interrupt                               |
+| decimal =                    | decimal                                 |
+| break =                      |                                         |
+| overflow =                   | overflow                                |
+| negative =                   | result >> 7                             |
+| writeByteAddress             |                                         |
+| writeByteValue               |                                         |
+| writeWordAddress             |                                         |
+| writeWordValue               |                                         |
 
 ### Go Language Support
 
