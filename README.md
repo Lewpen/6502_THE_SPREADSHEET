@@ -1,4 +1,4 @@
-# 6502_THE_SPREADSHEET
+# 6502 THE SPREADSHEET (The Repository)
 
 All 6502 instructions with their actions completely unrolled so you don't have to pick through detailed documentation to understand what they do or how to emulate them accurately.
 
