@@ -45,7 +45,7 @@ If you incorporate the recording of these values into your emulator as it execut
 
 If you don't want to mess around with code generation, your 6502-enabled program can just have the spreadsheet itself in memory - probably broken down into an array of lines - and then do the string processing of the row on the fly to perform the operation or disassemble the instruction.
 
-The expressions for the updates to registers etc. are few enough that you can check for each one as a string specifically and perform the equivalent calculation in code.
+The actual distinct expressions for the updates to registers et al. are few enough that you can check for each one as a string specifically and perform the equivalent calculation in code; you don't need to do any expression parsing.
 
 ## Roadmap:
 
