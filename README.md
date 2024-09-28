@@ -2,6 +2,8 @@
 
 All 6502 instructions with their actions completely unrolled so you don't have to pick through detailed documentation to understand what they do or how to emulate them accurately.
 
+This is used to code generate emulators in a variety of languages directly in the spreadsheet as columns which can be copy/pasted as source code.
+
 The spreadsheet is under construction and is at:
 https://docs.google.com/spreadsheets/d/1rCwO6CoIXiCqkJUaZ5Q9W5QZNqmhLpXaAhSthJPuV8I/edit?gid=0#gid=0
 
@@ -54,3 +56,107 @@ The actual distinct expressions for the updates to registers et al. are few enou
 3) Make codegen examples for JavaScript and Go for disassemblers and emulators
 4) Make test cases and put it through its paces
 
+# TECHNICALS
+
+## Here are the columns of the spreadsheet:
+
+| Index | Position | Header Title                 | Description                                                                 |
+|-------|----------|------------------------------|-----------------------------------------------------------------------------|
+| 0     | A        | Bytes                        | Number of bytes used by the instruction                                     |
+| 1     | B        | Name                         | Instruction mnemonic, e.g., BRK, ORA, etc.                                  |
+| 2     | C        | Cycles                       | Number of CPU cycles the instruction takes                                  |
+| 3     | D        | Args                         | The arguments used by the instruction, e.g., immediate, zero-page, etc.     |
+| 4     | E        | Description of the instruction| A short description of what the instruction does                            |
+| 5     | F        | zeroPageWordAddress =        | Address used to perform zero-page word memory access, results in readByte   |
+| 6     | G        | readByteAddress =            | Address used to perform a byte read from memory, results in readByte        |
+| 7     | H        | readWordAddress =            | Address used to perform a word read from memory, results in readWord        |
+| 8     | I        | result (word) =              | The result of the operation, affects flags and registers                    |
+| 9     | J        | A =                          | The new value of the accumulator after the operation                        |
+| 10    | K        | X =                          | The new value of the X register after the operation                         |
+| 11    | L        | Y =                          | The new value of the Y register after the operation                         |
+| 12    | M        | SP =                         | The new value of the stack pointer after the operation                      |
+| 13    | N        | PC =                         | The new value of the program counter after the operation                    |
+| 14    | O        | carry =                      | The new value of the carry flag                                             |
+| 15    | P        | zero =                       | The new value of the zero flag                                              |
+| 16    | Q        | interrupt =                  | The new value of the interrupt disable flag                                 |
+| 17    | R        | decimal =                    | The new value of the decimal mode flag                                      |
+| 18    | S        | break =                      | The new value of the break command flag                                     |
+| 19    | T        | overflow =                   | The new value of the overflow flag                                          |
+| 20    | U        | negative =                   | The new value of the negative flag                                          |
+| 21    | V        | writeByteAddress             | Address where a byte is written in memory                                   |
+| 22    | W        | writeByteValue               | The value that is written to the memory byte                                |
+| 23    | X        | writeWordAddress             | Address where a word is written in memory                                   |
+| 24    | Y        | writeWordValue               | The value that is written to the memory word                                |
+
+## Go Language Support
+
+### func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool
+
+Column BE in the spreadsheet contains Go code generated from the instruction information.
+
+This whole column can simply be copy-pasted into your source code to have a function called `Emulate6502` which emulates 6502 processing an instruction - given the current state updates that state based on the instruction at PC, moving PC on to the next instruction.
+
+The generated code column starts with some fixed text:
+
+```func Emulate6502( A *uint8, X *unit8, Y *unit8, SP *unit8, PC *uint16, SR *uint8, memory *byte[]) bool {
+  instruction := memory[PC & 0xFFFF]```
+
+Then has an if statement for each row which encodes the execution of the instruction in that row. Here is ORA (opcode 0x01) as an example:
+
+```  if instruction == 0x01 { LL := memory[PC + 1]; zeroPageWord := memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); readByte := memory[(zeroPageWord)&0xFFFF]; result := A | readByte; newA := result; *A = newA; carry := SR&1; zero := result == 0;interrupt := (SR>>2)&1; decimal := (SR>>3)&1; overflow := (SR>>6)&1; negative := (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true }```
+
+And finally after all the instruction handling there is the end of the `Emulate6502` function:
+
+```  return false
+}```
+
+Although the expression looks complex, it breaks down into a set of easy string replacements in the spreadsheet formula:
+
+```="  if instruction == 0x" & LEFT(A9,2) & " { " &
+
+JOIN("",
+
+IF(LEN(A9) > 3, "LL := memory[PC + 1]; ", ""),
+
+IF(I9 <> "", "zeroPageWord := memory[("&I9&")&0xFF] + (memory[(("&I9&")+1)&0xFF]<<8); ", ""),
+
+IF(J9 <> "", "readByte := memory[("&J9&")&0xFFFF]; ", ""),
+IF(K9 <> "", "readWord := memory[("&K9&")&0xFFFF] + (memory[(("&K9&")+1)&0xFFFF]<<8); ", ""),
+
+IF(L9 <> "", "result := "&L9&"; ", ""),
+
+IF(M9 <> "", "newA := "&M9&"; ", ""),
+IF(N9 <> "", "newX := "&N9&"; ", ""),
+IF(O9 <> "", "newY := "&O9&"; ", ""),
+IF(P9 <> "", "newSP := "&P9&"; ", ""),
+IF(Q9 <> "", "newPC := "&Q9&"; ", ""),
+
+IF(M9 <> "", "*A = newA; ", ""),
+IF(N9 <> "", "*X = newX; ", ""),
+IF(O9 <> "", "*Y = newY; ", ""),
+IF(P9 <> "", "*SP = newSP; ", ""),
+IF(Q9 <> "", "*PC = newPC; ", ""),
+
+IF( (R9 & S9 & T9 & U9 & V9 & W9) <> "", JOIN("",
+
+  IF( R9 <> "", "carry := " & R9 & ";", "carry := SR&1; "),
+  IF( S9 <> "", "zero := " & S9 & ";", "zero := (SR>>1)&1; "),
+  IF( T9 <> "", "interrupt := " & T9 & ";", "interrupt := (SR>>2)&1; "),
+  IF( U9 <> "", "decimal := " & U9 & ";", "decimal := (SR>>3)&1; "),
+  IF( V9 <> "", "overflow := " & V9 & ";", "overflow := (SR>>6)&1; "),
+  IF( W9 <> "", "negative := " & W9 & ";", "negative := (SR>>7)&1; ")
+
+), ""),
+
+IF( (R9 & S9 & T9 & U9 & V9 & W9) <> "", "*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); ", ""),
+
+IF( Q9 <> "", "*PC = " & Q9 & ";", "*PC = PC + " & (LEN(A9&" ")/3) & "; " ),
+
+IF( Y9 <> "", "memory[(" & Y9 & ")&0xFFFF] = " & Z9 & "; ", ""),
+
+IF( AA9 <> "", "memory[(" & AA9 & ")&0xFFFF] = (" & AB9 & ")&0xFF; memory[((" & AA9 & ")+1)&0xFFFF] = ((" & AB9 & ")>>8&0xFF; ", ""),
+"return true"
+)
+
+& " }"
+```
