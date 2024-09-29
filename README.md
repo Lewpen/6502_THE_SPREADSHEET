@@ -17,6 +17,12 @@ For each instruction there is a set of expressions for each of the necessary mem
 
 These expressions are provided in a simple portable form, just using the symbols + - << >> & | () and are thus valid expressions in many different programming languages from JavaScript to Go - enabling easy code generation using basic string manipulation of the spreadsheet rows (as TSV, for instance).
 
+## Code generation
+
+The spreadsheet is capable of generating emulator code directly, which comes as columns which can be copy-pasted into your own code to have a full self contained 6502 instruction emulator in a function with no expternal dependencies (other than passing in the registers and memory array to the function).
+
+![image](https://github.com/user-attachments/assets/b79542f3-ce62-4c48-83af-fbdb047df711)
+
 ## Making an Emulator or Disassembler
 
 Each row can be turned into a small block of code which processes that particular instruction.
