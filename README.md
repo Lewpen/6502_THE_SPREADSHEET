@@ -23,6 +23,10 @@ The spreadsheet is capable of generating emulator code directly, which comes as 
 
 ![image](https://github.com/user-attachments/assets/b79542f3-ce62-4c48-83af-fbdb047df711)
 
+Zooming in a bit, the form of the emulator code is visible; a generated if statement which checks for and executes each instruction:
+
+![image](https://github.com/user-attachments/assets/154d616b-c8e1-46b8-92f9-aebcd0f36dec)
+
 ## Making an Emulator or Disassembler
 
 Each row can be turned into a small block of code which processes that particular instruction.
