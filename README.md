@@ -5,6 +5,15 @@ All 6502 instructions with their actions completely unrolled so you don't have t
 The spreadsheet is under construction and is at:
 https://docs.google.com/spreadsheets/d/1rCwO6CoIXiCqkJUaZ5Q9W5QZNqmhLpXaAhSthJPuV8I/edit?gid=0#gid=0
 
+STATUS: Alpha / under construction
+
+* DONE: Get the list of instructions in place
+* DONE: Get the first pass of the functionality of instructions in place
+* DOING: Checking the functionality of each instruction
+* DOING: Adding languages to codegen and fixing bugs
+* DOING: Refining the reversibility information
+* TODO: Make test cases and put it through its paces
+
 ![image](https://github.com/user-attachments/assets/31bceb69-3d3f-4adc-9b40-a0d8ea07790d)
 
 ## How it works
