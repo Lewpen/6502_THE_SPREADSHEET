@@ -95,7 +95,7 @@ Here are the columns of the spreadsheet:
 | 5     | F        | zeroPageWord(Address) =        | Address used to perform zero-page word memory access, results in readByte   |
 | 6     | G        | readByte(Address) =            | Address used to perform a byte read from memory, results in readByte        |
 | 7     | H        | readWord(Address) =            | Address used to perform a word read from memory, results in readWord        |
-| 8     | I        | result (word) =              | The result of the operation, affects flags and registers                    |
+| 8     | I        | result (byte?) =              | The result of the operation, affects flags and registers                    |
 | 9     | J        | A =                          | The new value of the accumulator after the operation                        |
 | 10    | K        | X =                          | The new value of the X register after the operation                         |
 | 11    | L        | Y =                          | The new value of the Y register after the operation                         |
