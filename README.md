@@ -1,5 +1,7 @@
 # 6502 THE SPREADSHEET (The Repository)
 
+**Under Construction**
+
 ## Introduction
 
 All 6502 instructions with their actions completely unrolled so you don't have to pick through detailed documentation to understand what they do or how to emulate them accurately.
@@ -90,10 +92,10 @@ Here are the columns of the spreadsheet:
 | 2     | C        | Cycles                       | Number of CPU cycles the instruction takes                                  |
 | 3     | D        | Args                         | The arguments used by the instruction, e.g., immediate, zero-page, etc.     |
 | 4     | E        | Description of the instruction| A short description of what the instruction does                            |
-| 5     | F        | zeroPageWordAddress =        | Address used to perform zero-page word memory access, results in readByte   |
-| 6     | G        | readByteAddress =            | Address used to perform a byte read from memory, results in readByte        |
-| 7     | H        | readWordAddress =            | Address used to perform a word read from memory, results in readWord        |
-| 8     | I        | result (word) =              | The result of the operation, affects flags and registers                    |
+| 5     | F        | zeroPageWord(Address) =        | Address used to perform zero-page word memory access, results in readByte   |
+| 6     | G        | readByte(Address) =            | Address used to perform a byte read from memory, results in readByte        |
+| 7     | H        | readWord(Address) =            | Address used to perform a word read from memory, results in readWord        |
+| 8     | I        | result (byte?) =              | The result of the operation, affects flags and registers                    |
 | 9     | J        | A =                          | The new value of the accumulator after the operation                        |
 | 10    | K        | X =                          | The new value of the X register after the operation                         |
 | 11    | L        | Y =                          | The new value of the Y register after the operation                         |
@@ -122,10 +124,10 @@ Here with some example values from the `ORA ($LL, X)` instruction (opcode `0x01`
 | Cycles                       | 6                                       | Number of cycles |
 | Args                         | ($LL, X)                                | What the arguments to this assembly language instruction look like |
 | Description of the instruction| Bitwise OR between A and byte at address (LL + X) | |
-| zeroPageWordAddress =        | LL + X                                  | This causes `zeroPageWord` to be set to `memory[zeroPageWordAddress&0xFF` | 
-| readByteAddress =            | zeroPageWord                            | This causes `readByte` to be set to `memory[readByteAddress&0xFFFF` |
-| readWordAddress =            |                                         | This would set `readWord` if present |
-| result (word) =              | A | readByte                            | A convenient variable to store the result |
+| zeroPageWord(Address) =        | LL + X                                  | This causes `zeroPageWord` to be set to `memory[zeroPageWordAddress&0xFF` | 
+| readByte(Address) =            | zeroPageWord                            | This causes `readByte` to be set to `memory[readByteAddress&0xFFFF` |
+| readWord(Address) =            |                                         | This would set `readWord` if present |
+| result (byte?) =              | A | readByte                            | A convenient variable to store the result |
 | A =                          | result                                  | Puts the result into the new value of A register|
 | X =                          |                                         | No change to X |
 | Y =                          |                                         | No change to Y register |
