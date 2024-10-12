@@ -1,0 +1,40 @@
+="  if instruction == 0x" & LEFT(A10,2) & " { /* "&A10&" = "&B10&" "&D10&" */ " &
+
+JOIN("",
+
+IF(AND(LEN(A10) > 3, COUNTIF(I10:AD10, "*LL*") > 0), "LL := memory[PC + 1]; ", ""),
+IF(AND(LEN(A10) > 3, COUNTIF(I10:AD10, "*LLLL*") > 0), "LLLL := uint16(int8(LL)); ", ""),
+
+IF(LEN(A10) > 6, "HHLL := (uint16(memory[PC + 2])<<8) + uint16(int8(LL)); ", ""),
+
+IF(I10 <> "", "zeroPageWordAddress := uint8("&I10&"); zeroPageWord := uint16(memory[zeroPageWordAddress]) + (uint16(memory[(zeroPageWordAddress+1)&0xFF])<<8); ", ""),
+
+IF(J10 <> "", "readByteAddress := uint16("&J10&"); readByte := memory[readByteAddress]; ", ""),
+IF(K10 <> "", "readWordAddress := uint16("&K10&"); readWord := uint16(memory[readWordAddress]) + (uint16(memory[(readWordAddress+1)&0xFFFF])<<8); ", ""),
+
+IF(L10 <> "", "operand := "&L10&"; ", ""),
+
+IF(M10 <> "", "result := "&M10&"; ", ""),
+
+IF(N10 <> "", "*pA = "&N10&"; ", ""),
+IF(O10 <> "", "*pX = "&O10&"; ", ""),
+IF(P10 <> "", "*pY = "&P10&"; ", ""),
+IF(Q10 <> "", "*pSP = "&Q10&"; ", ""),
+
+IF( S10 <> "", "newCarry := uint8("&S10&")&1; *pSR = (*pSR & uint8(0b11111110)) + newCarry; ", ""),
+IF( T10 <> "", "newZero := uint8("&T10&")&1; *pSR = (*pSR & uint8(0b11111101)) + (newZero<<1); ", ""),
+IF( U10 <> "", "newInterrupt := uint8("&U10&")&1; *pSR = (*pSR & uint8(0b11111011)) + (newInterrupt<<2); ", ""),
+IF( V10 <> "", "newDecimal := uint8("&V10&")&1; *pSR = (*pSR & uint8(0b11110111)) + (newDecimal<<3); ", ""),
+IF( W10 <> "", "newBreak := uint8("&W10&")&1; *pSR = (*pSR & uint8(0b11101111)) + (newBreak<<4); ", ""),
+IF( X10 <> "", "newOverflow := uint8("&X10&")&1; *pSR = (*pSR & uint8(0b10111111)) + (newOverflow<<6); ", ""),
+IF( Y10 <> "", "newNegative := uint8("&Y10&")&1; *pSR = (*pSR & uint8(0b01111111)) + (newNegative<<7); ", ""),
+
+IF( R10 <> "", "*pPC = " & R10 & ";", "*pPC = PC + " & (LEN(A10&" ")/3) & "; " ),
+
+IF( Z10 <> "", "writeByteAddress := (" & Z10 & ")&0xFFFF; writeByte := uint8(" & AA10 & "); memory[writeByteAddress] = writeByte; ", ""),
+
+IF( AB10 <> "", "writeWordAddress := (" & AB10 & ")&0xFFFF; writeWord := uint16(" & AC10 & "); memory[writeWordAddress] = uint8(writeWord); memory[(writeWordAddress+1)&0xFFFF] = uint8(writeWord>>8); ", ""),
+"return true"
+)
+
+& " }"
