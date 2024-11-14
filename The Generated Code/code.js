@@ -1,163 +1,2224 @@
-
-
-
-
-// JS
-
-function Emulate6502( cpu, memory ) {
-    const A = cpu.A, X = cpu.X, Y = cpu.Y, SP = cpu.SP, PC = cpu.PC, SR = cpu.SR, carry = SR&1, zero = (SR>>1)&1, interrupt = (SR>>2)&1, decimal = (SR>>3)&1, overflow = (SR>>6)&1, negative = (SR>>7)&1;
-    if( instruction == 0x00 ) { const LL = memory[(PC+1)&0xFFFF]; const readWord = memory[(0xFFFE)&0xFFFF] + (memory[((0xFFFE)+1)&0xFFFF]<<8); const newSP = SP - 3; const newPC = (readWord)&0xFFFF; cpu.SP = newSP; cpu.PC = newPC; const carry = SR&1; const zero = (SR>>1)&1; const interrupt = 0x1;const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = readWord;memory[(SP - 2)&0xFFFF] = SR | 0x10; memory[(SP - 1)&0xFFFF] = (PC + 2)&0xFF; memory[((SP - 1)+1)&0xFFFF] = ((PC + 2)>>8&0xFF; return true; }
-    if( instruction == 0x01 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x05 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x06 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte << 1; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x08 ) { const newSP = SP - 1; cpu.SP = newSP; cpu.PC = PC + 1; memory[(SP)&0xFFFF] = SR | 0x30; return true; }
-    if( instruction == 0x09 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A | LL; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x0A ) { const result = A << 1; const newA = result; cpu.A = newA; const carry = A >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x0D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; cpu.PC = PC + 3; return true; }
-    if( instruction == 0x0E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte << 1; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x10 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (negative-1)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (negative-1));return true; }
-    if( instruction == 0x11 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x15 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x16 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = readByte << 1; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x18 ) { const carry = 0x0;const zero = (SR>>1)&1; const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x19 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x1D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A | readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x1E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = readByte << 1; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x20 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const newSP = SP - 2; const newPC = (HHLL)&0xFFFF; cpu.SP = newSP; cpu.PC = newPC; *PC = HHLL;memory[(SP - 1)&0xFFFF] = (PC + 3)&0xFF; memory[((SP - 1)+1)&0xFFFF] = ((PC + 3)>>8&0xFF; return true; }
-    if( instruction == 0x21 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x24 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A & readByte; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = readByte >> 6;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x25 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x26 ) { const LL = memory[(PC+1)&0xFFFF], readByte = memory[(LL)&0xFFFF], result = (readByte << 1) + carry, carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x28 ) { const readByte = memory[(SP + 1)&0xFFFF]; const result = readByte; const newSP = SP + 1; cpu.SP = newSP; const carry = result;const zero = (result | -result) >> 7;const interrupt = result >> 2;const decimal = result >> 3;const overflow = 0;const negative = result >> 6;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x29 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A & LL; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x2A ) { const result = (A << 1) + carry; const newA = result; cpu.A = newA; const carry = A >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x2C ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A & readByte; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = readByte >> 6;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x2D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x2E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = (readByte << 1) + carry; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x30 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (-negative)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (-negative));return true; }
-    if( instruction == 0x31 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x35 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x36 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = (readByte << 1) + carry; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x38 ) { const carry = 0x1;const zero = (SR>>1)&1; const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x39 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x3D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A & readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x3E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = (readByte << 1) + carry; const carry = readByte >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x40 ) { const readByte = memory[(SP + 1)&0xFFFF]; const readWord = memory[(SP + 3)&0xFFFF] + (memory[((SP + 3)+1)&0xFFFF]<<8); const newSP = SP + 3; const newPC = (readWord)&0xFFFF; cpu.SP = newSP; cpu.PC = newPC; const carry = result;const zero = result >> 1;const interrupt = result >> 2;const decimal = result >> 3;const overflow = 0;const negative = result >> 6;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = readWord;return true; }
-    if( instruction == 0x41 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x45 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x46 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte >> 1; const newA = result; cpu.A = newA; const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x48 ) { const newSP = SP - 1; cpu.SP = newSP; cpu.PC = PC + 1; memory[(SP)&0xFFFF] = A; return true; }
-    if( instruction == 0x49 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A ^ LL; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x4A ) { const result = A >> 1; const newA = result; cpu.A = newA; const carry = A;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x4C ) { const newPC = (HHLL)&0xFFFF; cpu.PC = newPC; *PC = HHLL;return true; }
-    if( instruction == 0x4D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x4E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte >> 1; const newA = result; cpu.A = newA; const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x50 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (overflow-1)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (overflow-1));return true; }
-    if( instruction == 0x51 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x55 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x56 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = readByte >> 1; const newA = result; cpu.A = newA; const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x58 ) { const carry = SR&1; const zero = (SR>>1)&1; const interrupt = 0x0;const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x59 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x5D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A ^ readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x5E ) { const readByte = memory[(HHLL + X)&0xFFFF]; const result = readByte >> 1; const newA = result; cpu.A = newA; const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x60 ) { const readWord = memory[(SP + 1)&0xFFFF] + (memory[((SP + 1)+1)&0xFFFF]<<8); const newSP = SP + 2; const newPC = (readWord)&0xFFFF; cpu.SP = newSP; cpu.PC = newPC; *PC = readWord;return true; }
-    if( instruction == 0x61 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x65 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x66 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = (readByte >> 1) + (carry << 7); const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x68 ) { const readByte = memory[(SP + 1)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x69 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A + LL + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x6A ) { const result = (A >> 1) + (carry << 7); const newA = result; cpu.A = newA; const carry = A;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x6C ) { const readWord = memory[(HHLL)&0xFFFF] + (memory[((HHLL)+1)&0xFFFF]<<8); const newPC = (readWord)&0xFFFF; cpu.PC = newPC; *PC = readWord;return true; }
-    if( instruction == 0x6D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x6E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = (readByte >> 1) + (carry << 7); const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x70 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (-overflow)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (-overflow));return true; }
-    if( instruction == 0x71 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x75 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0x76 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = (readByte >> 1) + (carry << 7); const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x78 ) { const carry = SR&1; const zero = (SR>>1)&1; const interrupt = 0x1;const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x79 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x7D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A + readByte + carry; const newA = result; cpu.A = newA; const carry = (A - result) >> 7;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ((A ^ result) & (readByte ^ result)) >> 7;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0x7E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = (readByte >> 1) + (carry << 7); const carry = readByte;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0x81 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); cpu.PC = PC + 2; memory[(zeroPageWord)&0xFFFF] = A; return true; }
-    if( instruction == 0x84 ) { const LL = memory[(PC+1)&0xFFFF]; cpu.PC = PC + 2; memory[(LL)&0xFFFF] = Y; return true; }
-    if( instruction == 0x85 ) { const LL = memory[(PC+1)&0xFFFF]; cpu.PC = PC + 2; memory[(LL)&0xFFFF] = A; return true; }
-    if( instruction == 0x86 ) { const LL = memory[(PC+1)&0xFFFF]; cpu.PC = PC + 2; memory[(LL)&0xFFFF] = X; return true; }
-    if( instruction == 0x88 ) { const result = Y - 1; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x8A ) { const result = X; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x8C ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); cpu.PC = PC + 3; memory[(HHLL)&0xFFFF] = Y; return true; }
-    if( instruction == 0x8D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); cpu.PC = PC + 3; memory[(HHLL)&0xFFFF] = A; return true; }
-    if( instruction == 0x8E ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); cpu.PC = PC + 3; memory[(HHLL)&0xFFFF] = X; return true; }
-    if( instruction == 0x90 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (carry-1)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (carry-1));return true; }
-    if( instruction == 0x91 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); cpu.PC = PC + 2; memory[(zeroPageWord + Y)&0xFFFF] = A; return true; }
-    if( instruction == 0x94 ) { const LL = memory[(PC+1)&0xFFFF]; cpu.PC = PC + 2; memory[((LL + X) & 0xFF)&0xFFFF] = Y; return true; }
-    if( instruction == 0x95 ) { const LL = memory[(PC+1)&0xFFFF]; cpu.PC = PC + 2; memory[((LL + X) & 0xFF)&0xFFFF] = A; return true; }
-    if( instruction == 0x96 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); cpu.PC = PC + 2; memory[(zeroPageWord + Y)&0xFFFF] = X; return true; }
-    if( instruction == 0x98 ) { const result = Y; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0x99 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); cpu.PC = PC + 3; memory[(HHLL + Y)&0xFFFF] = A; return true; }
-    if( instruction == 0x9A ) { const result = X; const newSP = result; cpu.SP = newSP; cpu.PC = PC + 1; return true; }
-    if( instruction == 0x9D ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); cpu.PC = PC + 3; memory[(HHLL + X)&0xFFFF] = A; return true; }
-    if( instruction == 0xA0 ) { const LL = memory[(PC+1)&0xFFFF]; const result = LL; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xA1 ) { const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xA2 ) { const LL = memory[(PC+1)&0xFFFF]; const result = LL; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xA4 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xA5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xA6 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xA8 ) { const result = A; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xA9 ) { const LL = memory[(PC+1)&0xFFFF]; const result = LL; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xAA ) { const result = A; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xAC ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xAD ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xAE ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xB0 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (-carry)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (-carry));return true; }
-    if( instruction == 0xB1 ) { const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xB4 ) { const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = readByte; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xB5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xB6 ) { const readByte = memory[((LL + Y) & 0xFF)&0xFFFF]; const result = readByte; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xB8 ) { const carry = SR&1; const zero = (SR>>1)&1; const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = 0x0;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xB9 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xBA ) { const result = SP; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xBC ) { const readByte = memory[(HHLL + X)&0xFFFF]; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xBD ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = readByte; const newA = result; cpu.A = newA; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xBE ) { const readByte = memory[(HHLL + Y)&0xFFFF]; const result = readByte; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xC0 ) { const LL = memory[(PC+1)&0xFFFF]; const result = Y - LL; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xC1 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xC4 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = Y - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xC5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xC6 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte - 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xC8 ) { const result = Y + 1; const newY = result; cpu.Y = newY; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xC9 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A - LL; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xCA ) { const result = X - 1; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xCC ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = Y - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xCD ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xCE ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte - 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xD0 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (zero-1)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (zero-1));return true; }
-    if( instruction == 0xD1 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + YY)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xD5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xD6 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = readByte - 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xD8 ) { const carry = SR&1; const zero = (SR>>1)&1; const interrupt = (SR>>2)&1; const decimal = 0x0;const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xD9 ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xDD ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xDE ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = readByte - 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xE0 ) { const LL = memory[(PC+1)&0xFFFF]; const result = X - LL; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xE1 ) { const LL = memory[(PC+1)&0xFFFF]; const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xE4 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = X - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xE5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xE6 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[(LL)&0xFFFF]; const result = readByte + 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xE8 ) { const result = X + 1; const newX = result; cpu.X = newX; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xE9 ) { const LL = memory[(PC+1)&0xFFFF]; const result = A - LL - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xEA ) { cpu.PC = PC + 1; return true; }
-    if( instruction == 0xEC ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = X - readByte; const carry = 1 - (result >> 7);const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xED ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xEE ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL)&0xFFFF]; const result = readByte + 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xF0 ) { const LL = memory[(PC+1)&0xFFFF]; const newPC = (PC + 2 + (LL & (-zero)))&0xFFFF; cpu.PC = newPC; *PC = PC + 2 + (LL & (-zero));return true; }
-    if( instruction == 0xF1 ) { const zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); const readByte = memory[(zeroPageWord + Y)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xF5 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; return true; }
-    if( instruction == 0xF6 ) { const LL = memory[(PC+1)&0xFFFF]; const readByte = memory[((LL + X) & 0xFF)&0xFFFF]; const result = readByte + 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    if( instruction == 0xF8 ) { const carry = SR&1; const zero = (SR>>1)&1; const interrupt = (SR>>2)&1; const decimal = 0x1;const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xF9 ) { const readByte = memory[(HHLL + Y)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 1; return true; }
-    if( instruction == 0xFD ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = A - readByte - (carry^1); const newA = result; cpu.A = newA; const carry = ???;const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = ???;cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; return true; }
-    if( instruction == 0xFE ) { const LL = memory[(PC+1)&0xFFFF]; const HH = memory[(PC+2)&0xFFFF]; const HHLL = LL + (HH<<8); const readByte = memory[(HHLL + X)&0xFFFF]; const result = readByte + 1; const carry = SR&1; const zero = (result | -result) >> 7;const interrupt = (SR>>2)&1; const decimal = (SR>>3)&1; const overflow = (SR>>6)&1; const negative = (SR>>7)&1; cpu.SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); cpu.PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-    return false
+function Emulate6502(cpu, memory) {
+	const A = cpu.A;
+	const X = cpu.X;
+	const Y = cpu.Y;
+	const SP = cpu.SP;
+	const PC = cpu.PC;
+	const SR = cpu.SR;
+	const SPSP = SP;
+	const XXXX = X;
+	const YYYY = Y;
+	const carry = SR&1;
+	const zero = (SR>>1)&1;
+	const overflow = (SR>>6)&1;
+	const negative = (SR>>7)&1;
+	const cccc = carry;
+	const zzzz = zero&1;
+	const vvvv = overflow&1;
+	const nnnn = negative&1;
+	const instruction = memory[PC & 0xFFFF];
+	switch (instruction) {
+	case 0x00: {
+		const readWordAddress = 0xFFFE;
+		const readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		const newSP = SP - 3;
+		const newPC = (readWord)&0xFFFF;
+		cpu.SP = newSP;
+		cpu.PC = newPC;
+		const newInterrupt = (0x1)&1;
+		cpu.SR = (cpu.SR & (0b11111011)) + (newInterrupt<<2);
+		cpu.PC = readWord;
+		memory[(0x100 + (SPSP - 2) & 0x00FF)&0xFFFF] = SR | 0x10;
+		memory[(0x100 + (SPSP - 1) & 0xFF)&0xFFFF] = (PC + 2)&0xFF;
+		memory[((0x100 + (SPSP - 1) & 0xFF)+1)&0xFFFF] = (PC + 2)>>8&0xFF;
+		return true;
+	} break;
+	case 0x01: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x05: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x06: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand << 1;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x08: {
+		const newSP = SP - 1;
+		cpu.SP = newSP;
+		cpu.PC = PC + 1;
+		memory[(0x100 + SPSP)&0xFFFF] = SR | 0x30;
+		return true;
+	} break;
+	case 0x09: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x0A: {
+		const operand = A;
+		const result = operand << 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x0D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x0E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand << 1;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x10: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (nnnn-1)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (nnnn-1));
+		return true;
+	} break;
+	case 0x11: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x15: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x16: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand << 1;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x18: {
+		const newCarry = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x19: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x1D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A | operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x1E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand << 1;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x20: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const newSP = SP - 2;
+		const newPC = (HHLL)&0xFFFF;
+		cpu.SP = newSP;
+		cpu.PC = newPC;
+		cpu.PC = HHLL;
+		memory[(0x100 + (SPSP - 1) & 0xFF)&0xFFFF] = (PC + 3)&0xFF;
+		memory[((0x100 + (SPSP - 1) & 0xFF)+1)&0xFFFF] = (PC + 3)>>8&0xFF;
+		return true;
+	} break;
+	case 0x21: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x24: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (operand >> 6)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x25: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x26: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand << 1) + carry;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x28: {
+		const readByteAddress = 0x100 + ((SPSP + 1)&0x00FF);
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newSP = SP + 1;
+		cpu.SP = newSP;
+		const newCarry = (result)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newInterrupt = (result >> 2)&1;
+		cpu.SR = (cpu.SR & (0b11111011)) + (newInterrupt<<2);
+		const newDecimal = (result >> 3)&1;
+		cpu.SR = (cpu.SR & (0b11110111)) + (newDecimal<<3);
+		const newBreak = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b11101111)) + (newBreak<<4);
+		const newOverflow = (result >> 6)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x29: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x2A: {
+		const operand = A;
+		const result = (operand << 1) + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x2C: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (operand >> 6)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x2D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x2E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand << 1) + carry;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x30: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (nnnn-1)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (nnnn-1));
+		return true;
+	} break;
+	case 0x31: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x35: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x36: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand << 1) + carry;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x38: {
+		const newCarry = (0x1)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newNegative = (0x1)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x39: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x3D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A & operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x3E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand << 1) + carry;
+		const newCarry = (operand >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x40: {
+		const readByteAddress = 0x100 + (SPSP + 1) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const readWordAddress = 0x100 + (SPSP + 2) & 0x00FF;
+		const readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		const operand = readByte;
+		const result = operand;
+		const newSP = SP + 2;
+		const newPC = (readWord)&0xFFFF;
+		cpu.SP = newSP;
+		cpu.PC = newPC;
+		const newCarry = (result)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (result >> 1)&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newInterrupt = (result >> 2)&1;
+		cpu.SR = (cpu.SR & (0b11111011)) + (newInterrupt<<2);
+		const newDecimal = (result >> 3)&1;
+		cpu.SR = (cpu.SR & (0b11110111)) + (newDecimal<<3);
+		const newBreak = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b11101111)) + (newBreak<<4);
+		const newOverflow = (result >> 6)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = readWord;
+		return true;
+	} break;
+	case 0x41: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x45: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x46: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand >> 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x48: {
+		const operand = A;
+		const newSP = SP - 1;
+		cpu.SP = newSP;
+		cpu.PC = PC + 1;
+		memory[(0x100 + SPSP)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x49: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x4A: {
+		const operand = A;
+		const result = operand >> 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x4C: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const newPC = (HHLL)&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = HHLL;
+		return true;
+	} break;
+	case 0x4D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x4E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand >> 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x50: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (vvvv-1)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (vvvv-1));
+		return true;
+	} break;
+	case 0x51: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x55: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x56: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand >> 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x58: {
+		const newInterrupt = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b11111011)) + (newInterrupt<<2);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x59: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x5D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A ^ operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x5E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand >> 1;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x60: {
+		const readWordAddress = 0x100 + (SPSP + 1) & 0x00FF;
+		const readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		const newSP = SP + 2;
+		const newPC = (readWord)&0xFFFF;
+		cpu.SP = newSP;
+		cpu.PC = newPC;
+		cpu.PC = readWord;
+		return true;
+	} break;
+	case 0x61: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x65: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x66: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand >> 1) + (carry << 7);
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x68: {
+		const readByteAddress = 0x100 + (SPSP + 1) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x69: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x6A: {
+		const operand = A;
+		const result = (operand >> 1) + (carry << 7);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x6C: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readWordAddress = HHLL;
+		const readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		const newPC = (readWord)&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = readWord;
+		return true;
+	} break;
+	case 0x6D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x6E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand >> 1) + (carry << 7);
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x70: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (-vvvv)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (-vvvv));
+		return true;
+	} break;
+	case 0x71: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x75: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0x76: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand >> 1) + (carry << 7);
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x78: {
+		const newInterrupt = (0x1)&1;
+		cpu.SR = (cpu.SR & (0b11111011)) + (newInterrupt<<2);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x79: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x7D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A + operand + carry;
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = ((result - A) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0x7E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = (operand >> 1) + (carry << 7);
+		const newCarry = (operand)&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x81: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const operand = A;
+		cpu.PC = PC + 2;
+		memory[(zeroPageWord)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x84: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = Y;
+		cpu.PC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x85: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = A;
+		cpu.PC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x86: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = X;
+		cpu.PC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x88: {
+		const operand = Y;
+		const result = operand - 1;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x8A: {
+		const operand = X;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x8C: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const operand = Y;
+		cpu.PC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x8D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const operand = A;
+		cpu.PC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x8E: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const operand = X;
+		cpu.PC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x90: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (cccc-1)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (cccc-1));
+		return true;
+	} break;
+	case 0x91: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const operand = A;
+		cpu.PC = PC + 2;
+		memory[(zeroPageWord + YYYY)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x94: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = Y;
+		cpu.PC = PC + 2;
+		memory[((LLLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x95: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = A;
+		cpu.PC = PC + 2;
+		memory[((LLLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x96: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const operand = X;
+		cpu.PC = PC + 2;
+		memory[((LLLL + YYYY) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x98: {
+		const operand = Y;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x99: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const operand = A;
+		cpu.PC = PC + 3;
+		memory[(HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x9A: {
+		const operand = X;
+		const result = operand;
+		const newSP = result;
+		cpu.SP = newSP;
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0x9D: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const operand = A;
+		cpu.PC = PC + 3;
+		memory[(HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0xA0: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA2: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA4: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xA8: {
+		const operand = A;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xA9: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xAA: {
+		const operand = A;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xAC: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xAD: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xAE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xB0: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (-cccc)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (-cccc));
+		return true;
+	} break;
+	case 0xB1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xB4: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xB5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xB6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xB8: {
+		const newOverflow = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xB9: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xBA: {
+		const operand = SP;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xBC: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xBD: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newA = result;
+		cpu.A = newA;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xBE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xC0: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = Y - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xC1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xC4: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = Y - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xC5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xC6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand - 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xC8: {
+		const operand = Y;
+		const result = operand + 1;
+		const newY = result;
+		cpu.Y = newY;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xC9: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xCA: {
+		const operand = X;
+		const result = operand - 1;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xCC: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = Y - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xCD: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xCE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand - 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xD0: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (zzzz-1)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (zzzz-1));
+		return true;
+	} break;
+	case 0xD1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xD5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xD6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand - 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xD8: {
+		const newDecimal = (0x0)&1;
+		cpu.SR = (cpu.SR & (0b11110111)) + (newDecimal<<3);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xD9: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xDD: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xDE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand - 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xE0: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = X - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xE1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL + X;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xE4: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = X - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xE5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xE6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = LLLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand + 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xE8: {
+		const operand = X;
+		const result = operand + 1;
+		const newX = result;
+		cpu.X = newX;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xE9: {
+		const LL = memory[PC + 1];
+		const operand = LL;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xEA: {
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xEC: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = X - operand;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xED: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xEE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand + 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xF0: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const newPC = (PC + 2 + (LLLL & (-zzzz)))&0xFFFF;
+		cpu.PC = newPC;
+		cpu.PC = PC + 2 + (LLLL & (-zzzz));
+		return true;
+	} break;
+	case 0xF1: {
+		const LL = memory[PC + 1];
+		const zeroPageWordAddress = LL;
+		const zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		const readByteAddress = zeroPageWord + YYYY;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xF5: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		return true;
+	} break;
+	case 0xF6: {
+		const LL = memory[PC + 1];
+		const LLLL = (LL << 24) >> 24;
+		const readByteAddress = (LLLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand + 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xF8: {
+		const newDecimal = (0x1)&1;
+		cpu.SR = (cpu.SR & (0b11110111)) + (newDecimal<<3);
+		cpu.PC = PC + 1;
+		return true;
+	} break;
+	case 0xF9: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xFD: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = A - operand - (carry^1);
+		const newA = result;
+		cpu.A = newA;
+		const newCarry = (1 - (result >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111110)) + newCarry;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		cpu.SR = (cpu.SR & (0b10111111)) + (newOverflow<<6);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		return true;
+	} break;
+	case 0xFE: {
+		const LL = memory[PC + 1];
+		const HH = memory[(PC+2)&0xFFFF];
+		const HHLL = ((LL << 24) >> 24) + (HH<<8);
+		const readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		const readByte = memory[readByteAddress];
+		const operand = readByte;
+		const result = operand + 1;
+		const newZero = (1 - ((result | -result) >> 7))&1;
+		cpu.SR = (cpu.SR & (0b11111101)) + (newZero<<1);
+		const newNegative = (result >> 7)&1;
+		cpu.SR = (cpu.SR & (0b01111111)) + (newNegative<<7);
+		cpu.PC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	}
+	return false
 }
-
-
