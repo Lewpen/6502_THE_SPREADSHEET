@@ -4,160 +4,2218 @@
 
 // C
 
-int Emulate6502( unsigned char *A, unsigned char *X, unsigned char *Y, unsigned char *SP, unsigned int *PC, unsigned char *SR, unsigned char *memory ) {
-  unsigned char instruction = memory[PC & 0xFFFF];
-  if( instruction == 0x00 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int readWord := memory[(0xFFFE)&0xFFFF] + (memory[((0xFFFE)+1)&0xFFFF]<<8); unsigned char newSP = SP - 3; unsigned int newPC = (readWord)&0xFFFF; *SP = newSP; *PC = newPC; unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = 0x1;unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = readWord;memory[(SP - 2)&0xFFFF] = SR | 0x10; memory[(SP - 1)&0xFFFF] = (PC + 2)&0xFF; memory[((SP - 1)+1)&0xFFFF] = ((PC + 2)>>8&0xFF; return true; }
-  if( instruction == 0x01 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x05 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x06 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte << 1; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x08 ) { unsigned char newSP = SP - 1; *SP = newSP; *PC = PC + 1; memory[(SP)&0xFFFF] = SR | 0x30; return true; }
-  if( instruction == 0x09 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A | LL; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x0A ) { unsigned int result = A << 1; unsigned char newA = result; *A = newA; unsigned char carry = A >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x0D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; *PC = PC + 3; return true; }
-  if( instruction == 0x0E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte << 1; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x10 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (negative-1)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (negative-1));return true; }
-  if( instruction == 0x11 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x15 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x16 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = readByte << 1; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x18 ) { unsigned char carry = 0x0;unsigned char zero = (SR>>1)&1; unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x19 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x1D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A | readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x1E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = readByte << 1; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x20 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char newSP = SP - 2; unsigned int newPC = (HHLL)&0xFFFF; *SP = newSP; *PC = newPC; *PC = HHLL;memory[(SP - 1)&0xFFFF] = (PC + 3)&0xFF; memory[((SP - 1)+1)&0xFFFF] = ((PC + 3)>>8&0xFF; return true; }
-  if( instruction == 0x21 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x24 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A & readByte; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = readByte >> 6;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x25 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x26 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = (readByte << 1) + carry; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x28 ) { unsigned char readByte = memory[(SP + 1)&0xFFFF]; unsigned int result = readByte; unsigned char newSP = SP + 1; *SP = newSP; unsigned char carry = result;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = result >> 2;unsigned char decimal = result >> 3;unsigned char overflow = 0;unsigned char negative = result >> 6;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x29 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A & LL; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x2A ) { unsigned int result = (A << 1) + carry; unsigned char newA = result; *A = newA; unsigned char carry = A >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x2C ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A & readByte; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = readByte >> 6;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x2D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x2E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = (readByte << 1) + carry; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x30 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (-negative)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (-negative));return true; }
-  if( instruction == 0x31 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x35 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x36 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = (readByte << 1) + carry; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x38 ) { unsigned char carry = 0x1;unsigned char zero = (SR>>1)&1; unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x39 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x3D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A & readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x3E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = (readByte << 1) + carry; unsigned char carry = readByte >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x40 ) { unsigned char readByte = memory[(SP + 1)&0xFFFF]; unsigned int readWord := memory[(SP + 3)&0xFFFF] + (memory[((SP + 3)+1)&0xFFFF]<<8); unsigned char newSP = SP + 3; unsigned int newPC = (readWord)&0xFFFF; *SP = newSP; *PC = newPC; unsigned char carry = result;unsigned char zero = result >> 1;unsigned char interrupt = result >> 2;unsigned char decimal = result >> 3;unsigned char overflow = 0;unsigned char negative = result >> 6;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = readWord;return true; }
-  if( instruction == 0x41 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x45 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x46 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte >> 1; unsigned char newA = result; *A = newA; unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x48 ) { unsigned char newSP = SP - 1; *SP = newSP; *PC = PC + 1; memory[(SP)&0xFFFF] = A; return true; }
-  if( instruction == 0x49 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A ^ LL; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x4A ) { unsigned int result = A >> 1; unsigned char newA = result; *A = newA; unsigned char carry = A;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x4C ) { unsigned int newPC = (HHLL)&0xFFFF; *PC = newPC; *PC = HHLL;return true; }
-  if( instruction == 0x4D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x4E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte >> 1; unsigned char newA = result; *A = newA; unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x50 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (overflow-1)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (overflow-1));return true; }
-  if( instruction == 0x51 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x55 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x56 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = readByte >> 1; unsigned char newA = result; *A = newA; unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x58 ) { unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = 0x0;unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x59 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x5D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A ^ readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x5E ) { unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = readByte >> 1; unsigned char newA = result; *A = newA; unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x60 ) { unsigned int readWord := memory[(SP + 1)&0xFFFF] + (memory[((SP + 1)+1)&0xFFFF]<<8); unsigned char newSP = SP + 2; unsigned int newPC = (readWord)&0xFFFF; *SP = newSP; *PC = newPC; *PC = readWord;return true; }
-  if( instruction == 0x61 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x65 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x66 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = (readByte >> 1) + (carry << 7); unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x68 ) { unsigned char readByte = memory[(SP + 1)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x69 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A + LL + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x6A ) { unsigned int result = (A >> 1) + (carry << 7); unsigned char newA = result; *A = newA; unsigned char carry = A;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x6C ) { unsigned int readWord := memory[(HHLL)&0xFFFF] + (memory[((HHLL)+1)&0xFFFF]<<8); unsigned int newPC = (readWord)&0xFFFF; *PC = newPC; *PC = readWord;return true; }
-  if( instruction == 0x6D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x6E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = (readByte >> 1) + (carry << 7); unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x70 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (-overflow)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (-overflow));return true; }
-  if( instruction == 0x71 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x75 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0x76 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = (readByte >> 1) + (carry << 7); unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x78 ) { unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = 0x1;unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x79 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x7D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A + readByte + carry; unsigned char newA = result; *A = newA; unsigned char carry = (A - result) >> 7;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ((A ^ result) & (readByte ^ result)) >> 7;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0x7E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = (readByte >> 1) + (carry << 7); unsigned char carry = readByte;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0x81 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); *PC = PC + 2; memory[(zeroPageWord)&0xFFFF] = A; return true; }
-  if( instruction == 0x84 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; *PC = PC + 2; memory[(LL)&0xFFFF] = Y; return true; }
-  if( instruction == 0x85 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; *PC = PC + 2; memory[(LL)&0xFFFF] = A; return true; }
-  if( instruction == 0x86 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; *PC = PC + 2; memory[(LL)&0xFFFF] = X; return true; }
-  if( instruction == 0x88 ) { unsigned int result = Y - 1; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x8A ) { unsigned int result = X; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x8C ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); *PC = PC + 3; memory[(HHLL)&0xFFFF] = Y; return true; }
-  if( instruction == 0x8D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); *PC = PC + 3; memory[(HHLL)&0xFFFF] = A; return true; }
-  if( instruction == 0x8E ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); *PC = PC + 3; memory[(HHLL)&0xFFFF] = X; return true; }
-  if( instruction == 0x90 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (carry-1)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (carry-1));return true; }
-  if( instruction == 0x91 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); *PC = PC + 2; memory[(zeroPageWord + Y)&0xFFFF] = A; return true; }
-  if( instruction == 0x94 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; *PC = PC + 2; memory[((LL + X) & 0xFF)&0xFFFF] = Y; return true; }
-  if( instruction == 0x95 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; *PC = PC + 2; memory[((LL + X) & 0xFF)&0xFFFF] = A; return true; }
-  if( instruction == 0x96 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); *PC = PC + 2; memory[(zeroPageWord + Y)&0xFFFF] = X; return true; }
-  if( instruction == 0x98 ) { unsigned int result = Y; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0x99 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); *PC = PC + 3; memory[(HHLL + Y)&0xFFFF] = A; return true; }
-  if( instruction == 0x9A ) { unsigned int result = X; unsigned char newSP = result; *SP = newSP; *PC = PC + 1; return true; }
-  if( instruction == 0x9D ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); *PC = PC + 3; memory[(HHLL + X)&0xFFFF] = A; return true; }
-  if( instruction == 0xA0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = LL; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xA1 ) { unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xA2 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = LL; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xA4 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xA5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xA6 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xA8 ) { unsigned int result = A; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xA9 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = LL; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xAA ) { unsigned int result = A; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xAC ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xAD ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xAE ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xB0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (-carry)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (-carry));return true; }
-  if( instruction == 0xB1 ) { unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xB4 ) { unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = readByte; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xB5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xB6 ) { unsigned char readByte = memory[((LL + Y) & 0xFF)&0xFFFF]; unsigned int result = readByte; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xB8 ) { unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = 0x0;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xB9 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xBA ) { unsigned int result = SP; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xBC ) { unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xBD ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = readByte; unsigned char newA = result; *A = newA; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xBE ) { unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = readByte; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xC0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = Y - LL; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xC1 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xC4 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = Y - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xC5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xC6 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte - 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xC8 ) { unsigned int result = Y + 1; unsigned char newY = result; *Y = newY; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xC9 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A - LL; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xCA ) { unsigned int result = X - 1; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xCC ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = Y - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xCD ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xCE ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte - 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xD0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (zero-1)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (zero-1));return true; }
-  if( instruction == 0xD1 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL)&0xFF] + (memory[((LL)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + YY)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xD5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xD6 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = readByte - 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xD8 ) { unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = (SR>>2)&1; unsigned char decimal = 0x0;unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xD9 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xDD ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xDE ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = readByte - 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xE0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = X - LL; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xE1 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xE4 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = X - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xE5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xE6 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[(LL)&0xFFFF]; unsigned int result = readByte + 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xE8 ) { unsigned int result = X + 1; unsigned char newX = result; *X = newX; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xE9 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int result = A - LL - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xEA ) { *PC = PC + 1; return true; }
-  if( instruction == 0xEC ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = X - readByte; unsigned char carry = 1 - (result >> 7);unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xED ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xEE ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL)&0xFFFF]; unsigned int result = readByte + 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xF0 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int newPC = (PC + 2 + (LL & (-zero)))&0xFFFF; *PC = newPC; *PC = PC + 2 + (LL & (-zero));return true; }
-  if( instruction == 0xF1 ) { unsigned int zeroPageWord = memory[(LL + X)&0xFF] + (memory[((LL + X)+1)&0xFF]<<8); unsigned char readByte = memory[(zeroPageWord + Y)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xF5 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; return true; }
-  if( instruction == 0xF6 ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned char readByte = memory[((LL + X) & 0xFF)&0xFFFF]; unsigned int result = readByte + 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 2; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  if( instruction == 0xF8 ) { unsigned char carry = SR&1; unsigned char zero = (SR>>1)&1; unsigned char interrupt = (SR>>2)&1; unsigned char decimal = 0x1;unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xF9 ) { unsigned char readByte = memory[(HHLL + Y)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 1; return true; }
-  if( instruction == 0xFD ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = A - readByte - (carry^1); unsigned char newA = result; *A = newA; unsigned char carry = ???;unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = ???;*SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; return true; }
-  if( instruction == 0xFE ) { unsigned char LL = memory[(PC+1)&0xFFFF]; unsigned int HH = memory[(PC+2)&0xFFFF]; unsigned int HHLL = LL + (HH<<8); unsigned char readByte = memory[(HHLL + X)&0xFFFF]; unsigned int result = readByte + 1; unsigned char carry = SR&1; unsigned char zero = (result | -result) >> 7;unsigned char interrupt = (SR>>2)&1; unsigned char decimal = (SR>>3)&1; unsigned char overflow = (SR>>6)&1; unsigned char negative = (SR>>7)&1; *SR = carry + (zero<<1) + (interrupt<<2) + (decimal<<3) + (overflow<<6) + (negative<<7); *PC = PC + 3; memory[(readByteAddress)&0xFFFF] = result; return true; }
-  return false;
+
+bool Emulate6502(uint8_t *pA, uint8_t *pX, uint8_t *pY, uint8_t *pSP, uint16_t *pPC, uint8_t *pSR, uint8_t *memory) {
+	uint8_t A = *pA;
+	uint8_t X = *pX;
+	uint8_t Y = *pY;
+	uint8_t SP = *pSP;
+	uint16_t PC = *pPC;
+	uint8_t SR = *pSR;
+	uint16_t SPSP = SP;
+	uint16_t XXXX = X;
+	uint16_t YYYY = Y;
+	uint8_t carry = SR&1;
+	uint8_t zero = (SR>>1)&1;
+	uint8_t overflow = (SR>>6)&1;
+	uint8_t negative = (SR>>7)&1;
+	uint16_t cccc = carry;
+	uint16_t zzzz = zero&1;
+	uint16_t vvvv = overflow&1;
+	uint16_t nnnn = negative&1;
+	uint8_t instruction = memory[PC & 0xFFFF];
+	switch (instruction) {
+	case 0x00: {
+		uint16_t readWordAddress = 0xFFFE;
+		uint16_t readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		uint8_t newSP = SP - 3;
+		uint16_t newPC = (readWord)&0xFFFF;
+		*pSP = newSP;
+		*pPC = newPC;
+		uint8_t newInterrupt = (0x1)&1;
+		*pSR = (*pSR & (0b11111011)) + (newInterrupt<<2);
+		*pPC = readWord;
+		memory[(0x100 + (SPSP - 2) & 0x00FF)&0xFFFF] = SR | 0x10;
+		memory[(0x100 + (SPSP - 1) & 0xFF)&0xFFFF] = (PC + 2)&0xFF;
+		memory[((0x100 + (SPSP - 1) & 0xFF)+1)&0xFFFF] = (PC + 2)>>8&0xFF;
+		return true;
+	} break;
+	case 0x01: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x05: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x06: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand << 1;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x08: {
+		uint8_t newSP = SP - 1;
+		*pSP = newSP;
+		*pPC = PC + 1;
+		memory[(0x100 + SPSP)&0xFFFF] = SR | 0x30;
+		return true;
+	} break;
+	case 0x09: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x0A: {
+		uint8_t operand = A;
+		uint8_t result = operand << 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x0D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x0E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand << 1;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x10: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (nnnn-1)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (nnnn-1));return true;
+	} break;
+	case 0x11: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x15: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x16: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand << 1;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x18: {
+		uint8_t newCarry = (0x0)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x19: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x1D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A | operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x1E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand << 1;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x20: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t newSP = SP - 2;
+		uint16_t newPC = (HHLL)&0xFFFF;
+		*pSP = newSP;
+		*pPC = newPC;
+		*pPC = HHLL;
+		memory[(0x100 + (SPSP - 1) & 0xFF)&0xFFFF] = (PC + 3)&0xFF;
+		memory[((0x100 + (SPSP - 1) & 0xFF)+1)&0xFFFF] = (PC + 3)>>8&0xFF;
+		return true;
+	} break;
+	case 0x21: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x24: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (operand >> 6)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (operand >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x25: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x26: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand << 1) + carry;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x28: {
+		uint16_t readByteAddress = 0x100 + ((SPSP + 1)&0x00FF);
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newSP = SP + 1;
+		*pSP = newSP;
+		uint8_t newCarry = (result)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newInterrupt = (result >> 2)&1;
+		*pSR = (*pSR & (0b11111011)) + (newInterrupt<<2);
+		uint8_t newDecimal = (result >> 3)&1;
+		*pSR = (*pSR & (0b11110111)) + (newDecimal<<3);
+		uint8_t newBreak = (0x0)&1;
+		*pSR = (*pSR & (0b11101111)) + (newBreak<<4);
+		uint8_t newOverflow = (result >> 6)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x29: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x2A: {
+		uint8_t operand = A;
+		uint8_t result = (operand << 1) + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x2C: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (operand >> 6)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (operand >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x2D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x2E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand << 1) + carry;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x30: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (nnnn-1)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (nnnn-1));return true;
+	} break;
+	case 0x31: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x35: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x36: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand << 1) + carry;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x38: {
+		uint8_t newCarry = (0x1)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newNegative = (0x1)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x39: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x3D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A & operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x3E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand << 1) + carry;
+		uint8_t newCarry = (operand >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x40: {
+		uint16_t readByteAddress = 0x100 + (SPSP + 1) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint16_t readWordAddress = 0x200 + (SPSP + 2) & 0x00FF;
+		uint16_t readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newSP = SP + 2;
+		uint16_t newPC = (readWord)&0xFFFF;
+		*pSP = newSP;
+		*pPC = newPC;
+		uint8_t newCarry = (result)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (result >> 1)&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newInterrupt = (result >> 2)&1;
+		*pSR = (*pSR & (0b11111011)) + (newInterrupt<<2);
+		uint8_t newDecimal = (result >> 3)&1;
+		*pSR = (*pSR & (0b11110111)) + (newDecimal<<3);
+		uint8_t newBreak = (0x0)&1;
+		*pSR = (*pSR & (0b11101111)) + (newBreak<<4);
+		uint8_t newOverflow = (result >> 6)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = readWord;return true;
+	} break;
+	case 0x41: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x45: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x46: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand >> 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x48: {
+		uint8_t operand = A;
+		uint8_t newSP = SP - 1;
+		*pSP = newSP;
+		*pPC = PC + 1;
+		memory[(0x100 + SPSP)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x49: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x4A: {
+		uint8_t operand = A;
+		uint8_t result = operand >> 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x4C: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t newPC = (HHLL)&0xFFFF;
+		*pPC = newPC;
+		*pPC = HHLL;return true;
+	} break;
+	case 0x4D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x4E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand >> 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x50: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (vvvv-1)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (vvvv-1));return true;
+	} break;
+	case 0x51: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x55: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x56: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand >> 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x58: {
+		uint8_t newInterrupt = (0x0)&1;
+		*pSR = (*pSR & (0b11111011)) + (newInterrupt<<2);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x59: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x5D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A ^ operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x5E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand >> 1;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x60: {
+		uint16_t readWordAddress = 0x200 + (SPSP + 1) & 0x00FF;
+		uint16_t readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		uint8_t newSP = SP + 2;
+		uint16_t newPC = (readWord)&0xFFFF;
+		*pSP = newSP;
+		*pPC = newPC;
+		*pPC = readWord;return true;
+	} break;
+	case 0x61: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x65: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x66: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand >> 1) + (carry << 7);
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x68: {
+		uint16_t readByteAddress = 0x100 + (SPSP + 1) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x69: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x6A: {
+		uint8_t operand = A;
+		uint8_t result = (operand >> 1) + (carry << 7);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x6C: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readWordAddress = HHLL;
+		uint16_t readWord = memory[readWordAddress] + (memory[(readWordAddress+1)&0xFFFF]<<8);
+		uint16_t newPC = (readWord)&0xFFFF;
+		*pPC = newPC;
+		*pPC = readWord;return true;
+	} break;
+	case 0x6D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x6E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand >> 1) + (carry << 7);
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x70: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (-vvvv)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (-vvvv));return true;
+	} break;
+	case 0x71: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x75: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0x76: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand >> 1) + (carry << 7);
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x78: {
+		uint8_t newInterrupt = (0x1)&1;
+		*pSR = (*pSR & (0b11111011)) + (newInterrupt<<2);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x79: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x7D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A + operand + carry;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = ((result - A) >> 7)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0x7E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = (operand >> 1) + (carry << 7);
+		uint8_t newCarry = (operand)&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0x81: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint8_t operand = A;
+		*pPC = PC + 2;
+		memory[(zeroPageWord)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x84: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint8_t operand = Y;
+		*pPC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x85: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint8_t operand = A;
+		*pPC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x86: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint8_t operand = X;
+		*pPC = PC + 2;
+		memory[(LLLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x88: {
+		uint8_t operand = Y;
+		uint8_t result = operand - 1;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x8A: {
+		uint8_t operand = X;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x8C: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t operand = Y;
+		*pPC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x8D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t operand = A;
+		*pPC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x8E: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t operand = X;
+		*pPC = PC + 3;
+		memory[(HHLL)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x90: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (cccc-1)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (cccc-1));return true;
+	} break;
+	case 0x91: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint8_t operand = A;
+		*pPC = PC + 2;
+		memory[(zeroPageWord + YYYY)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x94: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint8_t operand = Y;
+		*pPC = PC + 2;
+		memory[((LLLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x95: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint8_t operand = A;
+		*pPC = PC + 2;
+		memory[((LLLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x96: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = LL;
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint8_t operand = X;
+		*pPC = PC + 2;
+		memory[(zeroPageWord + YYYY)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x98: {
+		uint8_t operand = Y;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x99: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t operand = A;
+		*pPC = PC + 3;
+		memory[(HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0x9A: {
+		uint8_t operand = X;
+		uint8_t result = operand;
+		uint8_t newSP = result;
+		*pSP = newSP;
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0x9D: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint8_t operand = A;
+		*pPC = PC + 3;
+		memory[(HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF)&0xFFFF] = operand;
+		return true;
+	} break;
+	case 0xA0: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA2: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA4: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xA8: {
+		uint8_t operand = A;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xA9: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xAA: {
+		uint8_t operand = A;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xAC: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xAD: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xAE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xB0: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (-cccc)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (-cccc));return true;
+	} break;
+	case 0xB1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xB4: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xB5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xB6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xB8: {
+		uint8_t newOverflow = (0x0)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xB9: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xBA: {
+		uint8_t operand = SP;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xBC: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xBD: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xBE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xC0: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = Y - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xC1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xC4: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = Y - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xC5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xC6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand - 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xC8: {
+		uint8_t operand = Y;
+		uint8_t result = operand + 1;
+		uint8_t newY = result;
+		*pY = newY;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xC9: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		int16_t result = (int16_t)A - (int16_t)operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xCA: {
+		uint8_t operand = X;
+		uint8_t result = operand - 1;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xCC: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = Y - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xCD: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xCE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand - 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xD0: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (zzzz-1)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (zzzz-1));
+		return true;
+	} break;
+	case 0xD1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xD5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xD6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand - 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xD8: {
+		uint8_t newDecimal = (0x0)&1;
+		*pSR = (*pSR & (0b11110111)) + (newDecimal<<3);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xD9: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xDD: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xDE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand - 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xE0: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = X - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xE1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL + X);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xE4: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = X - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xE5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xE6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = LLLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand + 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xE8: {
+		uint8_t operand = X;
+		uint8_t result = operand + 1;
+		uint8_t newX = result;
+		*pX = newX;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xE9: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t operand = LL;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xEA: {
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xEC: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = X - operand;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xED: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xEE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand + 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xF0: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t newPC = (PC + 2 + (LLLL & (-zzzz)))&0xFFFF;
+		*pPC = newPC;
+		*pPC = PC + 2 + (LLLL & (-zzzz));return true;
+	} break;
+	case 0xF1: {
+		uint8_t LL = memory[PC + 1];
+		uint8_t zeroPageWordAddress = (LL);
+		uint16_t zeroPageWord = memory[zeroPageWordAddress] + (memory[(zeroPageWordAddress+1)&0xFF]<<8);
+		uint16_t readByteAddress = zeroPageWord + YYYY;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xF5: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		return true;
+	} break;
+	case 0xF6: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t LLLL = (uint16_t)(int8_t)LL;
+		uint16_t readByteAddress = (LLLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand + 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 2;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	case 0xF8: {
+		uint8_t newDecimal = (0x1)&1;
+		*pSR = (*pSR & (0b11110111)) + (newDecimal<<3);
+		*pPC = PC + 1;
+		return true;
+	} break;
+	case 0xF9: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + YYYY) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xFD: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = A - operand - (carry^1);
+		uint8_t newA = result;
+		*pA = newA;
+		uint8_t newCarry = (1 - (result >> 7))&1;
+		*pSR = (*pSR & (0b11111110)) + newCarry;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newOverflow = (((A ^ result) & (operand ^ result)) >> 7)&1;
+		*pSR = (*pSR & (0b10111111)) + (newOverflow<<6);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		return true;
+	} break;
+	case 0xFE: {
+		uint8_t LL = memory[PC + 1];
+		uint16_t HH = memory[(PC+2)&0xFFFF];
+		uint16_t HHLL = (uint16_t)(int8_t)LL + (HH<<8);
+		uint16_t readByteAddress = HHLL & 0xFF00 + (HHLL + XXXX) & 0x00FF;
+		uint8_t readByte = memory[readByteAddress];
+		uint8_t operand = readByte;
+		uint8_t result = operand + 1;
+		uint8_t newZero = (1 - ((result | -result) >> 7))&1;
+		*pSR = (*pSR & (0b11111101)) + (newZero<<1);
+		uint8_t newNegative = (result >> 7)&1;
+		*pSR = (*pSR & (0b01111111)) + (newNegative<<7);
+		*pPC = PC + 3;
+		memory[(readByteAddress)&0xFFFF] = result;
+		return true;
+	} break;
+	}
+	return false;
 }
-
-
